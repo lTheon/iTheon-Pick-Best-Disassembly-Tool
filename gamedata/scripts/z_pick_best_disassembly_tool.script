@@ -1,0 +1,29 @@
+-- Pick Best Disassembly Tool
+-- Author: iTheon
+-- License: MIT
+
+function item_parts.get_suitable_dtool(obj)
+	if IsWeapon(obj) then
+		return db.actor:object("leatherman_tool")
+	else
+		local itms_disassemble = GetItemList("disassemble")
+		local available_tools = {}
+		for sec,v in pairs(itms_disassemble) do
+			db.actor:iterate_ruck(function (_, item) 
+				local current_sec = item:section()
+				if not (current_sec == sec) then return end
+				table.insert(available_tools, item)
+			end, actor)
+		end
+
+		local curr_best_tool
+		for _,tool in pairs(available_tools) do
+			if not curr_best_tool then
+				curr_best_tool = tool
+			elseif curr_best_tool:condition() < tool:condition() then
+				curr_best_tool = tool
+			end
+		end
+		return curr_best_tool
+	end
+end
